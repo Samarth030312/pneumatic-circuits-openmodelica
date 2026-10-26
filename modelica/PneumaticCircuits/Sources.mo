@@ -2,6 +2,7 @@ within PneumaticCircuits;
 package Sources "Supply, exhaust and tube volumes"
 
   model PressureSupply "Compressor and service unit: a reservoir at p_gauge behind the service unit's conductance"
+    parameter String tag = "" "designation shown in the diagram, e.g. 1V2" annotation(Dialog(group = "Diagram"));
     parameter Real p_gauge(unit = "Pa") = 6e5 "regulated supply pressure (gauge)";
     parameter Real qn(unit = "l/min") = 750 "service unit's standard nominal flow rate (ESTIMATED)";
     parameter Real b = 0.3 "critical pressure ratio (ESTIMATED)";
@@ -13,7 +14,7 @@ package Sources "Supply, exhaust and tube volumes"
       Ellipse(extent = {{-30, 30}, {30, -30}}, lineColor = {0, 0, 0}, fillColor = {255, 255, 255}, fillPattern = FillPattern.Solid),
       Polygon(points = {{0, 22}, {-10, 6}, {10, 6}, {0, 22}}, lineColor = {0, 0, 0}, fillColor = {0, 0, 0}, fillPattern = FillPattern.Solid),
       Line(points = {{0, 30}, {0, 40}}),
-      Text(extent = {{36, 10}, {120, -10}}, textString = "%name", horizontalAlignment = TextAlignment.Left)}),
+      Text(extent = {{36, 10}, {120, -10}}, textString = "%tag  %name", horizontalAlignment = TextAlignment.Left)}),
       Documentation(info = "<html><p>The service unit (filter, regulator) is the supply's only restriction; the
 regulator is taken as ideal (p_gauge held upstream of it).</p></html>"));
   end PressureSupply;
@@ -22,7 +23,9 @@ regulator is taken as ideal (p_gauge held upstream of it).</p></html>"));
     Interfaces.Port port annotation(Placement(transformation(extent = {{-6, 14}, {6, 26}})));
   equation
     port.p = p_atm;
-    annotation(Icon(coordinateSystem(extent = {{-20, -20}, {20, 20}}), graphics = {
+    annotation(Documentation(info = "<html><h4>Exhaust</h4><p>A port open to the atmosphere (1.013 bar absolute, 0 bar gauge). Most valves here
+have their exhausts built in; use this for any other port that vents.</p></html>"),
+      Icon(coordinateSystem(extent = {{-20, -20}, {20, 20}}), graphics = {
       Polygon(points = {{0, 14}, {-10, -4}, {10, -4}, {0, 14}}, lineColor = {0, 0, 0}, fillColor = {255, 255, 255}, fillPattern = FillPattern.Solid),
       Line(points = {{0, 14}, {0, 20}})}));
   end Exhaust;
@@ -34,13 +37,15 @@ regulator is taken as ideal (p_gauge held upstream of it).</p></html>"));
     parameter Real n = 1.2 "polytropic exponent (ESTIMATED; 1 isothermal, 1.4 adiabatic)";
     parameter Real p_start(unit = "Pa") = p_atm "initial pressure";
     final parameter Real V(unit = "m3") = pi * D ^ 2 / 4 * L + V_extra;
+    Real p_bar = (port.p - p_atm) / 1e5 "gauge (bar)";
     Interfaces.Port port annotation(Placement(transformation(extent = {{-6, -6}, {6, 6}})));
   initial equation
     port.p = p_start;
   equation
     der(port.p) = n * R_air * T0 / V * port.m_flow;
     annotation(Icon(coordinateSystem(extent = {{-10, -10}, {10, 10}}), graphics = {
-      Ellipse(extent = {{-2.5, 2.5}, {2.5, -2.5}}, lineColor = {0, 0, 0}, fillColor = {0, 0, 0}, fillPattern = FillPattern.Solid)}),
+      Ellipse(extent = DynamicSelect({{-2.5, 2.5}, {2.5, -2.5}}, {{-4, 4}, {4, -4}}), lineColor = DynamicSelect({0, 0, 0}, if p_bar > 0.5 then {0, 90, 220} else {0, 0, 0}),
+        fillColor = DynamicSelect({0, 0, 0}, if p_bar > 0.5 then {0, 90, 220} else {0, 0, 0}), fillPattern = FillPattern.Solid)}),
       Documentation(info = "<html><p>One net of the circuit: the tubes and fittings between the ports it connects.
 dp/dt = n R T0 m_flow / V. Its flow resistance is lumped into the components' conductances.</p></html>"));
   end Tube;

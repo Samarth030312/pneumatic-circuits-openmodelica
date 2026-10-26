@@ -17,6 +17,8 @@ sys.path.insert(0, str(ROOT / "python"))
 from pneusim import circuits, diagram, model, scenarios  # noqa: E402
 
 MODELS = ["TwoHandPress", "TwoHandPressNoQuickExhaust", "Reciprocating", "PressureStamp"]
+LESSONS = ["L01_DirectSingleActing", "L02_DirectDoubleActing", "L03_IndirectControl", "L04_OrTwoPlaces",
+           "L05_AndTwoHands", "L06_SpeedControl", "L07_QuickExhaust", "L08_MemoryValve"]
 
 
 def docker_ok():
@@ -80,7 +82,7 @@ def test_one_button_does_not_move_the_press():
 
 
 # ------------------------------------------------------------------ the diagrams
-@pytest.mark.parametrize("mdl", MODELS)
+@pytest.mark.parametrize("mdl", MODELS + LESSONS)
 def test_diagram_lines_end_on_ports(mdl):
     assert diagram.check(mdl) == []
 
@@ -90,10 +92,11 @@ def test_diagram_lines_end_on_ports(mdl):
 def test_models_check_in_openmodelica():
     mos = ROOT / "build" / "check_all.mos"
     mos.parent.mkdir(exist_ok=True)
+    names = [f"Experiments.{m}" for m in MODELS] + [f"Learn.Lessons.{m}" for m in LESSONS] + ["Learn.Sandbox"]
     mos.write_text('loadFile("modelica/PneumaticCircuits/package.mo"); getErrorString();\n' +
-                   "".join(f"checkModel(PneumaticCircuits.Experiments.{m}); getErrorString();\n" for m in MODELS))
+                   "".join(f"checkModel(PneumaticCircuits.{m}); getErrorString();\n" for m in names))
     out = subprocess.run([str(ROOT / "scripts" / "om.sh"), "build/check_all.mos"], capture_output=True, text=True).stdout
-    assert out.count("completed successfully") == len(MODELS), out
+    assert out.count("completed successfully") == len(names), out
     assert "Error" not in out, out
 
 

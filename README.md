@@ -1,10 +1,12 @@
 # Pneumatic circuits in OpenModelica
 
 Pneumatic control circuits of a basic teaching kit, simulated from first principles with free
-software: a small Modelica library of valves, tubes and cylinders (ISO 6358 flow, polytropic
-volumes, a cylinder with friction), three experiments with 48 runs, and an independent Python
-implementation that reproduces every run. Circuits are drawn and run in OMEdit, OpenModelica's
-graphical editor, as in a commercial fluid-power simulator.
+software: a Modelica library of valves, tubes and cylinders (ISO 6358 flow, polytropic volumes, a
+cylinder with friction), eight lessons and three build-it-yourself exercises, three experiments
+with 48 runs, and an independent Python implementation that reproduces every run. Circuits are
+dragged, dropped, connected and run in OMEdit, OpenModelica's graphical editor, and **animate**
+after a simulation: pistons move, chambers and lines fill with pressure, valves show their active
+position, gauges read live ([learn](docs/LEARN.md)).
 
 ![two-hand press: circuit and simulated strokes](docs/img/circuit_two_hand_press.png)
 
@@ -56,6 +58,7 @@ On Windows or macOS: install [OpenModelica](https://openmodelica.org/download/) 
 
 | | |
 |---|---|
+| [Learn](docs/LEARN.md) | watch circuits run, the eight lessons, exercises and the sandbox |
 | [Software](docs/SOFTWARE.md) | the free and commercial tools compared, and why OpenModelica |
 | [Physics](docs/PHYSICS.md) | every equation, and the results they predict in closed form |
 | [Components](docs/COMPONENTS.md) | the kit's parts, every parameter with its source and status |
@@ -65,7 +68,7 @@ On Windows or macOS: install [OpenModelica](https://openmodelica.org/download/) 
 ## Repository
 
 ```
-modelica/PneumaticCircuits/   the Modelica library: components (Valves, Actuators, Sources, ...) and Experiments
+modelica/PneumaticCircuits/   the Modelica library: components (Valves, Actuators, Sources, ...), Learn (lessons, exercises, sandbox), Experiments
 python/pneusim/               the Python twin (model.py, circuits.py), scenarios, metrics, diagram drawing, OpenModelica runner
 scripts/                      run_experiments, make_figures, sensitivity, om.sh (compiler), omedit.sh (editor)
 results/                      data/ (every run, 5 ms), tables/ (measured quantities, cross-check, sensitivity), RUN_INFO.json
@@ -80,6 +83,8 @@ Other apparatus of the same laboratory, each in its own repository:
 [temperature control (Arduino)](https://github.com/Samarth030312/arduino-temperature-control-lab),
 [water-level control (Arduino)](https://github.com/Samarth030312/arduino-water-level-control-lab).
 
-## Licence
+## Licence and trademarks
 
 MIT ([LICENSE](LICENSE)). Third-party software and cited sources: [THIRD_PARTY.md](THIRD_PARTY.md).
+
+Festo, Festo Didactic and FluidSIM are trademarks of Festo SE & Co. KG. This project is independent: it is not affiliated with, sponsored or endorsed by Festo. Festo part numbers and datasheets are cited only to identify where a parameter value comes from; no Festo text, drawing, software or datasheet is reproduced. The circuit symbols are drawn here after the ISO 1219-1 conventions.

@@ -5,6 +5,7 @@ package Valves "Directional, logic, flow and pressure valves"
   import PneumaticCircuits.Functions.step;
 
   partial model Valve32 "3/2-way valve, normally closed, spring return; port 3 exhausts to atmosphere"
+    parameter String tag = "" "designation shown in the diagram, e.g. 1V2" annotation(Dialog(group = "Diagram"));
     parameter Real qn(unit = "l/min") = 80 "standard nominal flow rate (ESTIMATED)";
     parameter Real b = 0.3 "critical pressure ratio (ESTIMATED)";
     parameter Real tau(unit = "s") = 0.005 "switching time constant (ESTIMATED)";
@@ -21,9 +22,18 @@ package Valves "Directional, logic, flow and pressure valves"
     m23 = (1 - xv) * massFlow(C, b, p2.p, p_atm);
     p1.m_flow = m12;
     p2.m_flow = -m12 + m23;
-    annotation(Icon(coordinateSystem(extent = {{-50, -25}, {50, 25}}), graphics = {
-      Rectangle(extent = {{-30, 15}, {0, -15}}, lineColor = {0, 0, 0}, fillColor = {255, 255, 255}, fillPattern = FillPattern.Solid),
-      Rectangle(extent = {{0, 15}, {30, -15}}, lineColor = {0, 0, 0}, fillColor = {255, 255, 255}, fillPattern = FillPattern.Solid),
+    annotation(Documentation(info = "<html><h4>3/2-way valve, normally closed</h4>
+<p><b>Symbol.</b> Two squares = two positions. The right square, next to the spring, is the rest
+position: 1 is blocked (T) and 2 is vented to 3 (arrow to the exhaust triangle). The left square
+is the actuated position: 1 flows to 2.</p>
+<p><b>Ports.</b> 1 supply, 2 output, 3 exhaust (built in here).</p>
+<p><b>Model.</b> Spool position s follows its command with a lag tau: ds/dt = (s_cmd - s)/tau. Flows
+by ISO 6358: 1 to 2 with conductance s C, 2 to 3 with (1 - s) C, C from the nominal flow rate qn.</p>
+<p><b>Kit.</b> Push-button, roller lever and selector-switch versions, and the pressure sequence valve, share this core.
+<b>Lessons.</b> L01, L03.</p></html>"),
+      Icon(coordinateSystem(extent = {{-50, -25}, {50, 25}}), graphics = {
+      Rectangle(extent = {{-30, 15}, {0, -15}}, lineColor = {0, 0, 0}, fillColor = DynamicSelect({255, 255, 255}, if xv > 0.5 then {170, 215, 255} else {255, 255, 255}), fillPattern = FillPattern.Solid),
+      Rectangle(extent = {{0, 15}, {30, -15}}, lineColor = {0, 0, 0}, fillColor = DynamicSelect({255, 255, 255}, if xv <= 0.5 then {170, 215, 255} else {255, 255, 255}), fillPattern = FillPattern.Solid),
       Line(points = {{-22, -15}, {-22, 15}}, arrow = {Arrow.None, Arrow.Filled}, arrowSize = 4),
       Line(points = {{-8, -15}, {-8, -9}}), Line(points = {{-12, -9}, {-4, -9}}),
       Line(points = {{8, 15}, {22, -15}}, arrow = {Arrow.None, Arrow.Filled}, arrowSize = 4),
@@ -31,7 +41,7 @@ package Valves "Directional, logic, flow and pressure valves"
       Line(points = {{22, -15}, {22, -19}}),
       Polygon(points = {{22, -19}, {18, -25}, {26, -25}, {22, -19}}, lineColor = {0, 0, 0}, fillColor = {255, 255, 255}, fillPattern = FillPattern.Solid),
       Line(points = {{30, 0}, {33, 6}, {36, -6}, {39, 6}, {42, -6}, {45, 0}}),
-      Text(extent = {{-50, 26}, {0, 16}}, textString = "%name", horizontalAlignment = TextAlignment.Left)}));
+      Text(extent = {{-50, 26}, {0, 16}}, textString = "%tag  %name", horizontalAlignment = TextAlignment.Left)}));
   end Valve32;
 
   model PushButtonValve32 "3/2-way push-button valve, normally closed, spring return"
@@ -39,7 +49,10 @@ package Valves "Directional, logic, flow and pressure valves"
     Interfaces.BooleanInput pressed "the operator presses" annotation(Placement(transformation(extent = {{-54, -4}, {-46, 4}})));
   equation
     actuated = pressed;
-    annotation(Icon(graphics = {Line(points = {{-30, 0}, {-40, 0}}), Line(points = {{-40, -7}, {-40, 7}}), Line(points = {{-43, -7}, {-43, 7}})}));
+    annotation(Documentation(info = "<html><h4>3/2-way push-button valve, normally closed</h4>
+<p>Pressed: 1 to 2. Released: the spring returns it, 2 vents to 3. The red button in the animation shows
+when it is held. Operate it with a Signals.Schedule (press and release times). Lessons L01, L03-L05.</p></html>"),
+      Icon(graphics = {Line(points = {{-30, 0}, {-40, 0}}), Line(points = {{-40, -7}, {-40, 7}}, color = DynamicSelect({0, 0, 0}, if pressed then {220, 0, 0} else {0, 0, 0}), thickness = 0.5), Line(points = {{-43, -7}, {-43, 7}}, color = DynamicSelect({0, 0, 0}, if pressed then {220, 0, 0} else {0, 0, 0}), thickness = 0.5)}));
   end PushButtonValve32;
 
   model SelectorValve32 "3/2-way valve with selector switch (detented), normally closed"
@@ -47,7 +60,10 @@ package Valves "Directional, logic, flow and pressure valves"
     Interfaces.BooleanInput on "the switch is set" annotation(Placement(transformation(extent = {{-54, -4}, {-46, 4}})));
   equation
     actuated = on;
-    annotation(Icon(graphics = {Line(points = {{-30, 0}, {-38, 0}, {-44, 8}}), Line(points = {{-36, 4}, {-34, 0}, {-36, -4}})}));
+    annotation(Documentation(info = "<html><h4>3/2-way selector-switch valve, normally closed</h4>
+<p>As the push-button valve, but detented: it stays where it is set. Used as a start/stop switch
+(Experiments.Reciprocating).</p></html>"),
+      Icon(graphics = {Line(points = {{-30, 0}, {-38, 0}, {-44, 8}}), Line(points = {{-36, 4}, {-34, 0}, {-36, -4}})}));
   end SelectorValve32;
 
   model RollerValve32 "3/2-way roller lever valve, normally closed: actuated by the piston's trip cam"
@@ -57,7 +73,11 @@ package Valves "Directional, logic, flow and pressure valves"
     Interfaces.RealInput x(unit = "m") "piston position" annotation(Placement(transformation(extent = {{-54, -4}, {-46, 4}})));
   equation
     actuated = if whenAbove then x >= x_trip else x <= x_trip;
-    annotation(Icon(graphics = {Line(points = {{-30, 0}, {-36, 0}}), Ellipse(extent = {{-46, 5}, {-36, -5}}, lineColor = {0, 0, 0})}));
+    annotation(Documentation(info = "<html><h4>3/2-way roller lever valve (limit valve)</h4>
+<p>The cylinder's trip cam presses the roller at a set position: the valve reports \"position reached\"
+pneumatically. Connect the cylinder's position output (blue triangle) to the roller's input and set
+x_trip and whenAbove. Experiments.Reciprocating, PressureStamp, Exercise X03.</p></html>"),
+      Icon(graphics = {Line(points = {{-30, 0}, {-36, 0}}), Ellipse(extent = {{-46, 5}, {-36, -5}}, lineColor = {0, 0, 0})}));
   end RollerValve32;
 
   model PressureSequenceValve "Pressure sequence valve: a 3/2-way valve switched when port 12 exceeds p_set"
@@ -80,12 +100,19 @@ package Valves "Directional, logic, flow and pressure valves"
       on = false;
     end when;
     actuated = on;
-    annotation(Icon(graphics = {Line(points = {{-30, 0}, {-46, 0}}, pattern = LinePattern.Dash),
+    annotation(Documentation(info = "<html><h4>Pressure sequence valve</h4>
+<p>A 3/2-way valve switched by pressure: when the pressure at control port 12 exceeds p_set (adjustable),
+1 flows to 2. Used to act on force instead of position: return a press when it has pressed hard enough.</p>
+<p><b>Mind the pitfalls</b> (Experiments.PressureStamp): the pressure peak needed to start a cylinder can
+trip it at once, and with meter-out the cap side sits near the supply pressure throughout the stroke.
+Gate it with a roller valve and meter the air in.</p></html>"),
+      Icon(graphics = {Line(points = {{-30, 0}, {-46, 0}}, pattern = LinePattern.Dash),
       Polygon(points = {{-30, 0}, {-36, 4}, {-36, -4}, {-30, 0}}, lineColor = {0, 0, 0}),
       Line(points = {{30, 0}, {33, 6}, {36, -6}, {39, 6}, {42, -6}, {45, 0}}), Line(points = {{32, -8}, {44, 8}}, arrow = {Arrow.None, Arrow.Filled}, arrowSize = 3)}));
   end PressureSequenceValve;
 
   partial model Valve52 "5/2-way valve: at rest 1 -> 2 and 4 -> 5, switched 1 -> 4 and 2 -> 3; 3 and 5 exhaust"
+    parameter String tag = "" "designation shown in the diagram, e.g. 1V2" annotation(Dialog(group = "Diagram"));
     parameter Real qn(unit = "l/min") = 110 "standard nominal flow rate per path (ESTIMATED)";
     parameter Real b = 0.3 "critical pressure ratio (ESTIMATED)";
     parameter Real tau(unit = "s") = 0.008 "switching time constant (ESTIMATED)";
@@ -111,9 +138,17 @@ package Valves "Directional, logic, flow and pressure valves"
     p1.m_flow = m14 + m12;
     p2.m_flow = -m12 + m23;
     p4.m_flow = -m14 + m45;
-    annotation(Icon(coordinateSystem(extent = {{-60, -30}, {60, 30}}), graphics = {
-      Rectangle(extent = {{-40, 20}, {0, -20}}, lineColor = {0, 0, 0}, fillColor = {255, 255, 255}, fillPattern = FillPattern.Solid),
-      Rectangle(extent = {{0, 20}, {40, -20}}, lineColor = {0, 0, 0}, fillColor = {255, 255, 255}, fillPattern = FillPattern.Solid),
+    annotation(Documentation(info = "<html><h4>5/2-way valve</h4>
+<p><b>Symbol.</b> Two positions, five ports. Rest (right square): 1 to 2, 4 to 5. Switched (left square):
+1 to 4, 2 to 3. 3 and 5 are exhausts (triangles).</p>
+<p><b>Use.</b> The power valve of a double-acting cylinder: 4 to the cap side (extend), 2 to the rod side (retract).
+Pilot 14 connects 1 to 4, pilot 12 connects 1 to 2 (the digits name the ports they connect).</p>
+<p><b>Model.</b> Spool lag tau; four ISO 6358 paths scaled by s and (1 - s). Pilot chambers fill through
+their own restriction; the valve switches at p_on and returns below p_off (hysteresis).</p>
+<p><b>Lessons.</b> L02, L03, L08.</p></html>"),
+      Icon(coordinateSystem(extent = {{-60, -30}, {60, 30}}), graphics = {
+      Rectangle(extent = {{-40, 20}, {0, -20}}, lineColor = {0, 0, 0}, fillColor = DynamicSelect({255, 255, 255}, if xv > 0.5 then {170, 215, 255} else {255, 255, 255}), fillPattern = FillPattern.Solid),
+      Rectangle(extent = {{0, 20}, {40, -20}}, lineColor = {0, 0, 0}, fillColor = DynamicSelect({255, 255, 255}, if xv <= 0.5 then {170, 215, 255} else {255, 255, 255}), fillPattern = FillPattern.Solid),
       Line(points = {{-20, -20}, {-30, 20}}, arrow = {Arrow.None, Arrow.Filled}, arrowSize = 4),
       Line(points = {{-10, 20}, {-6, -20}}, arrow = {Arrow.None, Arrow.Filled}, arrowSize = 4),
       Line(points = {{-34, -20}, {-34, -14}}), Line(points = {{-38, -14}, {-30, -14}}),
@@ -123,8 +158,20 @@ package Valves "Directional, logic, flow and pressure valves"
       Line(points = {{6, -20}, {6, -23}}), Line(points = {{34, -20}, {34, -23}}),
       Polygon(points = {{6, -23}, {2, -29}, {10, -29}, {6, -23}}, lineColor = {0, 0, 0}, fillColor = {255, 255, 255}, fillPattern = FillPattern.Solid),
       Polygon(points = {{34, -23}, {30, -29}, {38, -29}, {34, -23}}, lineColor = {0, 0, 0}, fillColor = {255, 255, 255}, fillPattern = FillPattern.Solid),
-      Text(extent = {{-60, 30}, {0, 21}}, textString = "%name", horizontalAlignment = TextAlignment.Left)}));
+      Text(extent = {{-60, 30}, {0, 21}}, textString = "%tag  %name", horizontalAlignment = TextAlignment.Left)}));
   end Valve52;
+
+  model SelectorValve52 "5/2-way valve with selector switch (detented): set, it feeds port 4; reset, port 2"
+    extends Valve52;
+    Interfaces.BooleanInput on "the switch is set" annotation(Placement(transformation(extent = {{-64, -4}, {-56, 4}})));
+  equation
+    switched = on;
+    annotation(Documentation(info = "<html><h4>5/2-way valve with selector switch</h4>
+<p>A detented hand lever: set, it stays set (1 to 4); reset, 1 to 2. Direct control of a double-acting
+cylinder (Lesson L02). Operate it with a Signals.Schedule.</p></html>"),
+      Icon(graphics = {Line(points = {{-40, 0}, {-50, 0}, {-56, 10}}, color = DynamicSelect({0, 0, 0}, if on then {220, 0, 0} else {0, 0, 0}), thickness = 0.5),
+      Line(points = {{-47, 5}, {-45, 0}, {-47, -5}})}));
+  end SelectorValve52;
 
   model PilotValve52 "5/2-way valve, pneumatic pilot 14, spring return"
     extends Valve52;
@@ -140,7 +187,12 @@ package Valves "Directional, logic, flow and pressure valves"
       on = false;
     end when;
     switched = on;
-    annotation(Icon(graphics = {Line(points = {{-60, 0}, {-48, 0}}, pattern = LinePattern.Dash),
+    annotation(Documentation(info = "<html><h4>5/2-way valve, pneumatic pilot 14, spring return</h4>
+<p>Air at 14 above p_on (1.5 bar) moves the spool; when the pilot falls below p_off (1.0 bar) the
+spring returns it. The difference is hysteresis: spool friction acts against the motion both ways.</p>
+<p><b>Indirect control.</b> A small push button fills only the pilot; the big valve carries the cylinder's
+air (Lesson L03). Signal elements and power elements are separated.</p></html>"),
+      Icon(graphics = {Line(points = {{-60, 0}, {-48, 0}}, pattern = LinePattern.Dash),
       Polygon(points = {{-40, 0}, {-48, 5}, {-48, -5}, {-40, 0}}, lineColor = {0, 0, 0}, fillColor = {255, 255, 255}, fillPattern = FillPattern.Solid),
       Line(points = {{40, 0}, {43, 7}, {47, -7}, {51, 7}, {55, -7}, {58, 0}})}));
   end PilotValve52;
@@ -164,13 +216,18 @@ package Valves "Directional, logic, flow and pressure valves"
       on = false;
     end when;
     switched = on;
-    annotation(Icon(graphics = {Line(points = {{-60, 0}, {-48, 0}}, pattern = LinePattern.Dash),
+    annotation(Documentation(info = "<html><h4>5/2-way double-pilot valve (memory valve)</h4>
+<p>No spring: a signal at 14 switches it, a signal at 12 switches it back, and between signals it stays
+where it is - it remembers. With both pilots pressurised it cannot move (overlapping signals: Lesson L08).</p>
+<p>Used for sequences: limit valves at the ends of a stroke switch it back and forth (Experiments.Reciprocating).</p></html>"),
+      Icon(graphics = {Line(points = {{-60, 0}, {-48, 0}}, pattern = LinePattern.Dash),
       Polygon(points = {{-40, 0}, {-48, 5}, {-48, -5}, {-40, 0}}, lineColor = {0, 0, 0}, fillColor = {255, 255, 255}, fillPattern = FillPattern.Solid),
       Line(points = {{60, 0}, {48, 0}}, pattern = LinePattern.Dash),
       Polygon(points = {{40, 0}, {48, 5}, {48, -5}, {40, 0}}, lineColor = {0, 0, 0}, fillColor = {255, 255, 255}, fillPattern = FillPattern.Solid)}));
   end DoublePilotValve52;
 
-  model TwoPressureValve "Two-pressure valve (AND): the output follows the lower of the two inputs"
+  partial model LogicValve "Two inputs, one output: the common part of the two-pressure (AND) and shuttle (OR) valves"
+    parameter String tag = "" "designation shown in the diagram, e.g. 1V1" annotation(Dialog(group = "Diagram"));
     parameter Real qn(unit = "l/min") = 100 "standard nominal flow rate (ESTIMATED)";
     parameter Real b = 0.3 "(ESTIMATED)";
     parameter Real dp_w(unit = "Pa") = 5e3 "pressure difference over which the shuttle moves (ESTIMATED)";
@@ -178,50 +235,46 @@ package Valves "Directional, logic, flow and pressure valves"
     Interfaces.Port x "1: input" annotation(Placement(transformation(extent = {{-44, -4}, {-36, 4}})));
     Interfaces.Port y "1: input" annotation(Placement(transformation(extent = {{36, -4}, {44, 4}})));
     Interfaces.Port a "2: output" annotation(Placement(transformation(extent = {{-4, 21}, {4, 29}})));
-    Real w "1: x is the lower input and feeds the output";
+    Real w "1: input x feeds the output, 0: input y does";
     Real mx(unit = "kg/s"), my(unit = "kg/s");
+    Real p_out_bar = (a.p - p_atm) / 1e5 "output, gauge (bar)";
   equation
-    w = step(y.p - x.p, dp_w);
     mx = w * massFlow(C, b, x.p, a.p);
     my = (1 - w) * massFlow(C, b, y.p, a.p);
     x.m_flow = mx;
     y.m_flow = my;
     a.m_flow = -mx - my;
     annotation(Icon(coordinateSystem(extent = {{-40, -15}, {40, 25}}), graphics = {
-      Rectangle(extent = {{-30, 10}, {30, -10}}, lineColor = {0, 0, 0}, fillColor = {255, 255, 255}, fillPattern = FillPattern.Solid),
+      Rectangle(extent = {{-30, 10}, {30, -10}}, lineColor = {0, 0, 0}, fillColor = DynamicSelect({255, 255, 255}, if p_out_bar > 0.5 then {170, 215, 255} else {255, 255, 255}), fillPattern = FillPattern.Solid),
       Line(points = {{-40, 0}, {-30, 0}}), Line(points = {{30, 0}, {40, 0}}), Line(points = {{0, 10}, {0, 25}}),
-      Rectangle(extent = {{-12, 6}, {12, -6}}, lineColor = {0, 0, 0}),
-      Line(points = {{-12, 0}, {-22, 0}}), Line(points = {{12, 0}, {22, 0}}),
-      Line(points = {{-22, 6}, {-22, -6}}), Line(points = {{22, 6}, {22, -6}}),
-      Text(extent = {{-40, 25}, {-4, 13}}, textString = "%name", horizontalAlignment = TextAlignment.Left)}));
+      Text(extent = {{-40, 25}, {-4, 13}}, textString = "%tag  %name", horizontalAlignment = TextAlignment.Left)}));
+  end LogicValve;
+
+  model TwoPressureValve "Two-pressure valve (AND): the output follows the lower of the two inputs"
+    extends LogicValve;
+  equation
+    w = step(y.p - x.p, dp_w);
+    annotation(Icon(graphics = {Rectangle(extent = {{-12, 6}, {12, -6}}, lineColor = {0, 0, 0}),
+      Line(points = {{-12, 0}, {-22, 0}}), Line(points = {{12, 0}, {22, 0}}), Line(points = {{-22, 6}, {-22, -6}}), Line(points = {{22, 6}, {22, -6}})}),
+      Documentation(info = "<html><p>A free piston between two inputs: air at one input pushes it over to block that input,
+so the output is fed only when both inputs are pressurised - then by the lower pressure.
+Model: the output is connected to the lower input, w = 1/2 + 1/2 tanh((p_y - p_x)/dp_w).
+Logic: AND. Use: two-hand controls, interlocks (\"position reached AND start\").</p></html>"));
   end TwoPressureValve;
 
   model ShuttleValve "Shuttle valve (OR): the output follows the higher of the two inputs"
-    parameter Real qn(unit = "l/min") = 100 "(ESTIMATED)";
-    parameter Real b = 0.3 "(ESTIMATED)";
-    parameter Real dp_w(unit = "Pa") = 5e3 "(ESTIMATED)";
-    final parameter Real C = conductance(qn, b);
-    Interfaces.Port x "1: input" annotation(Placement(transformation(extent = {{-44, -4}, {-36, 4}})));
-    Interfaces.Port y "1: input" annotation(Placement(transformation(extent = {{36, -4}, {44, 4}})));
-    Interfaces.Port a "2: output" annotation(Placement(transformation(extent = {{-4, 21}, {4, 29}})));
-    Real w "1: x is the higher input and feeds the output";
-    Real mx(unit = "kg/s"), my(unit = "kg/s");
+    extends LogicValve;
   equation
     w = step(x.p - y.p, dp_w);
-    mx = w * massFlow(C, b, x.p, a.p);
-    my = (1 - w) * massFlow(C, b, y.p, a.p);
-    x.m_flow = mx;
-    y.m_flow = my;
-    a.m_flow = -mx - my;
-    annotation(Icon(coordinateSystem(extent = {{-40, -15}, {40, 25}}), graphics = {
-      Rectangle(extent = {{-30, 10}, {30, -10}}, lineColor = {0, 0, 0}, fillColor = {255, 255, 255}, fillPattern = FillPattern.Solid),
-      Line(points = {{-40, 0}, {-30, 0}}), Line(points = {{30, 0}, {40, 0}}), Line(points = {{0, 10}, {0, 25}}),
-      Ellipse(extent = {{-6, 6}, {6, -6}}, lineColor = {0, 0, 0}, fillColor = {255, 255, 255}, fillPattern = FillPattern.Solid),
-      Line(points = {{-22, 8}, {-16, 0}, {-22, -8}}), Line(points = {{22, 8}, {16, 0}, {22, -8}}),
-      Text(extent = {{-40, 25}, {-4, 13}}, textString = "%name", horizontalAlignment = TextAlignment.Left)}));
+    annotation(Icon(graphics = {Ellipse(extent = {{-6, 6}, {6, -6}}, lineColor = {0, 0, 0}, fillColor = {255, 255, 255}, fillPattern = FillPattern.Solid),
+      Line(points = {{-22, 8}, {-16, 0}, {-22, -8}}), Line(points = {{22, 8}, {16, 0}, {22, -8}})}),
+      Documentation(info = "<html><p>A free ball between two inputs and two seats: the pressurised input pushes the ball
+onto the other seat, so the air reaches the output and cannot escape through the other input.
+Model: the output is connected to the higher input. Logic: OR. Use: starting from two places.</p></html>"));
   end ShuttleValve;
 
   model OneWayFlowControl "One-way flow control valve: free flow pa -> pb through the check valve, throttled pb -> pa"
+    parameter String tag = "" "designation shown in the diagram, e.g. 1V2" annotation(Dialog(group = "Diagram"));
     parameter Real opening(min = 0, max = 1) = 0.3 "throttle setting as a fraction of its largest nominal flow";
     parameter Boolean reversed = false "free flow pb -> pa instead";
     parameter Real qn_throttle_max(unit = "l/min") = 85 "throttled direction, fully open (VERIFIED: Festo Didactic 193967, 0-85 l/min)";
@@ -248,15 +301,16 @@ package Valves "Directional, logic, flow and pressure valves"
       Line(points = {{0, 18}, {8, 18}, {8, -18}, {0, -18}}),
       Line(points = {{0, -12}, {16, 12}}, arrow = {Arrow.None, Arrow.Filled}, arrowSize = 4),
       Line(points = {{0, 18}, {-12, 18}, {-12, -18}, {0, -18}}),
-      Ellipse(extent = {{-16, 4}, {-8, -4}}, lineColor = {0, 0, 0}, fillColor = {255, 255, 255}, fillPattern = FillPattern.Solid),
+      Ellipse(extent = {{-16, 4}, {-8, -4}}, lineColor = {0, 0, 0}, fillColor = DynamicSelect({255, 255, 255}, if w > 0.5 then {170, 215, 255} else {255, 255, 255}), fillPattern = FillPattern.Solid),
       Line(points = {{-17, -8}, {-12, -3}, {-7, -8}}),
-      Text(extent = {{22, 10}, {70, -2}}, textString = "%name", horizontalAlignment = TextAlignment.Left)}),
+      Text(extent = {{22, 10}, {70, -2}}, textString = "%tag  %name", horizontalAlignment = TextAlignment.Left)}),
       Documentation(info = "<html><p>Modelled from its datasheet as a direction-dependent conductance: free direction
 qn = 100 + 10 opening l/min, throttled direction qn = 85 opening l/min; the check valve's state
 blends the two over a few kPa above its cracking pressure.</p></html>"));
   end OneWayFlowControl;
 
   model QuickExhaust "Quick-exhaust valve: 1 -> 2 while 1 is higher; 2 -> 3 (atmosphere) when 1 drops"
+    parameter String tag = "" "designation shown in the diagram, e.g. 1V2" annotation(Dialog(group = "Diagram"));
     parameter Real qn12(unit = "l/min") = 300 "1 -> 2 (UNVERIFIED: Festo Didactic quick-exhaust valve page, 300 l/min)";
     parameter Real qn23(unit = "l/min") = 390 "2 -> 3 (UNVERIFIED: same page, 390 l/min)";
     parameter Real b = 0.3 "(ESTIMATED)";
@@ -276,12 +330,17 @@ blends the two over a few kPa above its cracking pressure.</p></html>"));
     m23 = w23 * massFlow(C23, b, p2.p, p_atm);
     p1.m_flow = m12;
     p2.m_flow = -m12 + m23;
-    annotation(Icon(coordinateSystem(extent = {{-40, -20}, {40, 30}}), graphics = {
+    annotation(Documentation(info = "<html><h4>Quick-exhaust valve</h4>
+<p>Fitted at the cylinder. While the line pushes air in (port 1 higher), its lip seal passes 1 to 2 and
+seals the exhaust. When the line is vented, the cylinder's air lifts the disc and leaves straight through
+exhaust 3 (the triangle turns blue): no trip back through the tube and the directional valve, so the
+piston moves faster (Lesson L07, Experiments.TwoHandPress).</p></html>"),
+      Icon(coordinateSystem(extent = {{-40, -20}, {40, 30}}), graphics = {
       Rectangle(extent = {{-30, 12}, {30, -12}}, lineColor = {0, 0, 0}, fillColor = {255, 255, 255}, fillPattern = FillPattern.Solid),
       Line(points = {{-40, 0}, {-30, 0}}), Line(points = {{-30, 0}, {-10, 0}}), Line(points = {{0, 30}, {0, 12}}), Line(points = {{0, 0}, {0, 12}}),
       Ellipse(extent = {{-14, 5}, {-4, -5}}, lineColor = {0, 0, 0}, fillColor = {255, 255, 255}, fillPattern = FillPattern.Solid),
       Line(points = {{2, 0}, {20, 0}}, arrow = {Arrow.None, Arrow.Open}, arrowSize = 4),
-      Polygon(points = {{30, 0}, {36, 5}, {36, -5}, {30, 0}}, lineColor = {0, 0, 0}, fillColor = {255, 255, 255}, fillPattern = FillPattern.Solid),
-      Text(extent = {{-40, 26}, {-4, 14}}, textString = "%name", horizontalAlignment = TextAlignment.Left)}));
+      Polygon(points = {{30, 0}, {36, 5}, {36, -5}, {30, 0}}, lineColor = {0, 0, 0}, fillColor = DynamicSelect({255, 255, 255}, if w23 > 0.5 then {170, 215, 255} else {255, 255, 255}), fillPattern = FillPattern.Solid),
+      Text(extent = {{-40, 26}, {-4, 14}}, textString = "%tag  %name", horizontalAlignment = TextAlignment.Left)}));
   end QuickExhaust;
 end Valves;

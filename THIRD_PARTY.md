@@ -17,3 +17,7 @@ quick-exhaust valve. ISO 6358 (flow rate characteristics of pneumatic components
 
 The circuit symbols in the library's icons are drawn here in the style of ISO 1219-1; they are
 not copied from any vendor's library.
+
+## Trademarks
+
+Festo, Festo Didactic and FluidSIM are trademarks of Festo SE & Co. KG. This project is independent: it is not affiliated with, sponsored or endorsed by Festo. Festo part numbers and datasheets are cited only to identify where a parameter value comes from; no Festo text, drawing, software or datasheet is reproduced. The circuit symbols are drawn here after the ISO 1219-1 conventions.

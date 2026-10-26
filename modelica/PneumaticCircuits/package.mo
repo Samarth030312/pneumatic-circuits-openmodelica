@@ -21,5 +21,8 @@ chambers are variable volumes, its piston obeys Newton's law with friction and e
 Rule: each net joins exactly one Tube with the restrictive ports of valves and cylinders.</p>
 <p>Parameters are marked in their descriptions: VERIFIED (a manufacturer's datasheet) or
 ESTIMATED. See docs/PHYSICS.md and docs/COMPONENTS.md.</p>
+<p><b>Start here:</b> Learn.Lessons (L01 to L08), then Learn.Exercises, then the Experiments.
+After a simulation, open the Diagram Window (Plotting perspective) and press Play to watch the circuit run.</p>
+<p><small>Festo, Festo Didactic and FluidSIM are trademarks of Festo SE & Co. KG. This project is independent: it is not affiliated with, sponsored or endorsed by Festo. Festo part numbers and datasheets are cited only to identify where a parameter value comes from; no Festo text, drawing, software or datasheet is reproduced. The circuit symbols are drawn here after the ISO 1219-1 conventions. MIT licence.</small></p>
 </html>"));
 end PneumaticCircuits;

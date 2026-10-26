@@ -127,7 +127,8 @@ def balanced(s, start):
 class Cls:
     def __init__(self, name, body, full):
         self.name, self.body, self.full = name, body, full
-        self.extends = re.findall(r"^\s*extends\s+([\w.]+)", body, re.M)
+        self.extends = re.findall(r"^\s*extends\s+([\w.]+)\s*[(;]", body, re.M)
+        self.redeclares = dict((n, t) for t, n in re.findall(r"redeclare\s+([\w.]+)\s+(\w+)", body))
         self.icon, self.extent = [], None
         self.components = []          # (type, name, comment, placement extent)
         self.connects = []            # (a, b, points, color)
@@ -136,18 +137,25 @@ class Cls:
     def _parse(self):
         b = self.body
         # the class annotation: the last top-level "annotation(" after the equations
-        m = re.search(r"\n\s*annotation\s*\(\s*Icon\s*\(", b)
-        if m:
-            start = b.index("Icon", m.start())
-            p0 = b.index("(", start)
+        # the class annotation is the last top-level annotation(...) of the body; Icon(...) is one of its arguments
+        starts = [m.start() for m in re.finditer(r"\n\s*annotation\s*\(", b)]
+        for st in reversed(starts):
+            p0 = b.index("(", st)
             end = balanced(b, p0)
-            ca = Parser("Icon" + b[p0:end]).value()[1]
+            ann = b[p0:end]
+            mi = re.search(r"[(,]\s*Icon\s*\(", ann)
+            if not mi:
+                continue
+            q0 = ann.index("(", mi.start() + 1)
+            q1 = balanced(ann, q0)
+            ca = Parser("Icon" + ann[q0:q1]).value()[1]
             cs = arg(ca, "coordinateSystem")
             if cs:
                 self.extent = arg(cs[1], "extent")
             self.icon = arg(ca, "graphics") or []
+            break
         # components with placements
-        for m in re.finditer(r"^\s*(?:discrete\s+|parameter\s+)?([\w.]+)\s+(\w+)\s*(\([^;]*?\))?\s*(\"[^\"]*\")?\s*annotation\s*\(\s*Placement", b, re.M):
+        for m in re.finditer(r"^\s*(?:discrete\s+|parameter\s+|replaceable\s+)?([\w.]+)\s+(\w+)\s*(\([^;]*?\))?\s*(?:constrainedby\s+[\w.]+\s*)?(\"[^\"]*\")?\s*annotation\s*\(\s*Placement", b, re.M):
             typ, name = m.group(1), m.group(2)
             if typ in ("connect",):
                 continue
@@ -155,7 +163,8 @@ class Cls:
             end = balanced(b, p0)
             ca = Parser("P" + b[p0:end]).value()[1]
             ext = arg(arg(ca, "transformation")[1], "extent")
-            self.components.append((typ, name, (m.group(4) or "").strip('"'), ext))
+            tag = re.search(r'tag\s*=\s*"([^"]*)"', m.group(3) or "")
+            self.components.append((typ, name, tag.group(1) if tag else "", ext))
         for m in re.finditer(r"connect\s*\(\s*([\w.]+)\s*,\s*([\w.]+)\s*\)\s*annotation\s*\(\s*Line\s*", b):
             p0 = b.index("(", b.index("Line", m.start()))
             end = balanced(b, p0)
@@ -163,10 +172,30 @@ class Cls:
             self.connects.append((m.group(1), m.group(2), named["points"], named.get("color", [0, 0, 0])))
 
 
+def strip_dynamic(s):
+    """DynamicSelect(static, dynamic) -> static: the drawing without animation"""
+    while True:
+        i = s.find("DynamicSelect(")
+        if i < 0:
+            return s
+        p0 = i + len("DynamicSelect")
+        end = balanced(s, p0)
+        inner, depth, cut = s[p0 + 1:end - 1], 0, None
+        for k, c in enumerate(inner):                 # the first top-level comma ends the static part
+            if c in "({":
+                depth += 1
+            elif c in ")}":
+                depth -= 1
+            elif c == "," and depth == 0:
+                cut = k
+                break
+        s = s[:i] + inner[:cut].strip() + s[end:]
+
+
 def load_library():
     classes = {}
     for f in SRC.glob("*.mo"):
-        s = f.read_text()
+        s = strip_dynamic(f.read_text())
         pkg = f.stem if f.stem != "package" else ""
         for m in re.finditer(r"^\s*(?:partial\s+)?(model|block|connector)\s+(\w+)\b(?!\s*=)", s, re.M):
             name = m.group(2)
@@ -217,10 +246,12 @@ def mapper(src, dst):
 def model_layout(model):
     classes = load_library()
     top = classes[model]
-    comps, connects = [], []
+    comps, connects, redecl = [], [], {}
     for k in chain(classes, top):
         comps += k.components
         connects += k.connects
+        redecl.update(getattr(k, "redeclares", {}))
+    comps = [(redecl.get(name, typ), name, comment, ext) for typ, name, comment, ext in comps]
     placed = {}
     for typ, name, comment, ext in comps:
         c = resolve(classes, typ)
@@ -249,10 +280,9 @@ def check(model, tol=0.6):
 
 
 # ------------------------------------------------------------------ drawing
-def label(name, comment):
-    if not comment:
-        return ""
-    return comment.split(":")[0].strip()
+def label(name, tag):
+    """the designation (tag) when the circuit sets one; parts without it (tubes, operators) stay unlabelled"""
+    return tag
 
 
 def draw(model, path_noext, title=None, hide=("Tube",)):
@@ -284,6 +314,8 @@ def draw(model, path_noext, title=None, hide=("Tube",)):
         lc = col(nm.get("lineColor", nm.get("color")))
         fc = col(nm.get("fillColor"), (255, 255, 255)) if nm.get("fillPattern") == "FillPattern.Solid" else "none"
         lw = 0.9 * max(nm.get("thickness", 0.25) / 0.25, 1)
+        if nm.get("pattern") == "LinePattern.None":
+            lw = 0
         if kind == "Line":
             pts = [f(*p) for p in nm["points"]]
             xs, ys = zip(*pts)
@@ -305,8 +337,8 @@ def draw(model, path_noext, title=None, hide=("Tube",)):
             ax.add_patch(Polygon([f(*p) for p in nm["points"]], closed=True, ec=lc, fc=fc, lw=lw))
         elif kind == "Text":
             s = nm.get("textString", "")
-            if "%name" in s:
-                s = s.replace("%name", label(comp_name, comment))
+            if "%name" in s or "%tag" in s:
+                s = label(comp_name, comment) if "%tag" in s else s.replace("%name", comp_name or "")
             if not s:
                 return
             (a, b), (c, d) = f(*nm["extent"][0]), f(*nm["extent"][1])

@@ -5,8 +5,8 @@ package Interfaces "Connectors"
     Real p(unit = "Pa", nominal = 1e5, start = p_atm) "absolute pressure";
     flow Real m_flow(unit = "kg/s", nominal = 1e-3) "mass flow into the component";
     annotation(
-      Icon(graphics = {Ellipse(extent = {{-100, 100}, {100, -100}}, lineColor = {0, 0, 0}, fillColor = {0, 0, 0}, fillPattern = FillPattern.Solid)}),
-      Diagram(graphics = {Ellipse(extent = {{-40, 40}, {40, -40}}, lineColor = {0, 0, 0}, fillColor = {0, 0, 0}, fillPattern = FillPattern.Solid)}));
+      Icon(graphics = {Ellipse(extent = {{-50, 50}, {50, -50}}, lineColor = {60, 60, 60}, fillColor = {255, 255, 255}, fillPattern = FillPattern.Solid)}),
+      Diagram(graphics = {Ellipse(extent = {{-40, 40}, {40, -40}}, lineColor = {60, 60, 60}, fillColor = {255, 255, 255}, fillPattern = FillPattern.Solid)}));
   end Port;
 
   connector RealInput = input Real "Signal input"
