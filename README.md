@@ -42,6 +42,7 @@ docker pull openmodelica/openmodelica:v1.27.1-minimal   # compiler and simulator
 docker pull openmodelica/openmodelica:v1.27.1-gui       # for OMEdit (optional)
 
 scripts/omedit.sh                     # OMEdit with the library: Experiments > double-click > Simulate
+python3 scripts/play.py TwoHandPress opening=0.1   # one run with your settings, plotted (--list shows them)
 python3 scripts/run_experiments.py    # all 48 runs, OpenModelica and the Python twin (about 5 min)
 python3 scripts/make_figures.py       # figures and circuit diagrams -> docs/img
 python3 scripts/sensitivity.py        # parameter sensitivity -> results/tables/sensitivity.csv
