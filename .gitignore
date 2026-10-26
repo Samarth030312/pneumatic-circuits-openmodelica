@@ -1,0 +1,17 @@
+# OpenModelica build products and scratch runs (rebuilt by the scripts)
+build/
+*.mat
+*.log
+!results/**/*.log
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+
+# Editors and OS
+.vscode/
+.idea/
+*.swp
+.DS_Store

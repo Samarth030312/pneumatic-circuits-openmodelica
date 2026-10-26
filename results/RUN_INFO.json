@@ -1,0 +1,11 @@
+{
+  "date_utc": "2026-10-26T06:45:36Z",
+  "openmodelica": "OpenModelica 1.27.1",
+  "image": "openmodelica/openmodelica:v1.27.1-minimal",
+  "python": "3.10.12",
+  "numpy": "1.26.4",
+  "scipy": "1.15.3",
+  "git": null,
+  "scenarios": 48,
+  "seconds": 270
+}
