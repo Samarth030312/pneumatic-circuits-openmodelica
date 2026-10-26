@@ -247,7 +247,7 @@ where it is - it remembers. With both pilots pressurised it cannot move (overlap
     annotation(Icon(coordinateSystem(extent = {{-40, -15}, {40, 25}}), graphics = {
       Rectangle(extent = {{-30, 10}, {30, -10}}, lineColor = {0, 0, 0}, fillColor = DynamicSelect({255, 255, 255}, if p_out_bar > 0.5 then {170, 215, 255} else {255, 255, 255}), fillPattern = FillPattern.Solid),
       Line(points = {{-40, 0}, {-30, 0}}), Line(points = {{30, 0}, {40, 0}}), Line(points = {{0, 10}, {0, 25}}),
-      Text(extent = {{-40, 25}, {-4, 13}}, textString = "%tag  %name", horizontalAlignment = TextAlignment.Left)}));
+      Text(extent = {{-40, 25}, {-1, 13}}, textString = "%tag  %name", horizontalAlignment = TextAlignment.Right)}));
   end LogicValve;
 
   model TwoPressureValve "Two-pressure valve (AND): the output follows the lower of the two inputs"
@@ -340,7 +340,7 @@ piston moves faster (Lesson L07, Experiments.TwoHandPress).</p></html>"),
       Line(points = {{-40, 0}, {-30, 0}}), Line(points = {{-30, 0}, {-10, 0}}), Line(points = {{0, 30}, {0, 12}}), Line(points = {{0, 0}, {0, 12}}),
       Ellipse(extent = {{-14, 5}, {-4, -5}}, lineColor = {0, 0, 0}, fillColor = {255, 255, 255}, fillPattern = FillPattern.Solid),
       Line(points = {{2, 0}, {20, 0}}, arrow = {Arrow.None, Arrow.Open}, arrowSize = 4),
-      Polygon(points = {{30, 0}, {36, 5}, {36, -5}, {30, 0}}, lineColor = {0, 0, 0}, fillColor = DynamicSelect({255, 255, 255}, if w23 > 0.5 then {170, 215, 255} else {255, 255, 255}), fillPattern = FillPattern.Solid),
-      Text(extent = {{-40, 26}, {-4, 14}}, textString = "%tag  %name", horizontalAlignment = TextAlignment.Left)}));
+      Polygon(points = {{30, 0}, {36, 5}, {36, -5}, {30, 0}}, lineColor = {0, 0, 0}, fillColor = DynamicSelect({255, 255, 255}, if m23 > 1e-5 then {170, 215, 255} else {255, 255, 255}), fillPattern = FillPattern.Solid),
+      Text(extent = {{-60, 26}, {-3, 14}}, textString = "%tag  %name", horizontalAlignment = TextAlignment.Right)}));
   end QuickExhaust;
 end Valves;

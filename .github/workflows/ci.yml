@@ -5,17 +5,54 @@ on:
   pull_request:
 
 jobs:
-  test:
-    name: Library, Python twin, OpenModelica cross-check
+  linux:
+    name: Linux · OpenModelica in Docker · all tests
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.10"
-      - name: Python packages
-        run: pip install numpy==1.26.4 scipy==1.15.3 matplotlib==3.10.8 pytest==8.3.5
-      - name: OpenModelica container
-        run: docker pull openmodelica/openmodelica:v1.27.1-minimal
-      - name: Tests (flow law, closed forms, diagrams, models check in OpenModelica, OpenModelica against the Python twin)
+      - run: pip install -r requirements.txt
+      - run: docker pull openmodelica/openmodelica:v1.27.1-minimal
+      - name: Tests (OM_ENGINE=docker)
         run: python -m pytest -v tests
+        env:
+          OM_ENGINE: docker
+
+  windows:
+    name: Windows · OpenModelica 1.27.1 installed natively · all tests
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - uses: OpenModelica/setup-openmodelica@v1.2.0
+        with:
+          version: "1.27.1"
+      - name: Tests (OM_ENGINE=native)
+        run: python -m pytest -v tests
+        env:
+          OM_ENGINE: native
+      - name: The plot tool, both engines
+        run: |
+          python scripts/play.py TwoHandPress opening=0.1 --save
+          python scripts/play.py TwoHandPress opening=0.1 --engine python --save
+        env:
+          OM_ENGINE: native
+
+  macos:
+    name: macOS · Python twin, diagrams, plot tool (no OpenModelica)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - name: Tests (the OpenModelica ones are skipped)
+        run: python -m pytest -v tests
+      - name: The plot tool on the Python twin
+        run: python scripts/play.py Reciprocating openingA=0.1 --engine python --save

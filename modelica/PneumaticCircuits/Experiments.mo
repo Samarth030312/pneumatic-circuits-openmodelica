@@ -195,7 +195,9 @@ controls throttle the air leaving the cylinder (meter-out) or, reversed, the air
     connect(v1.p2, tRod.port) annotation(Line(points = {{30, -50}, {30, -25}, {110, -25}, {110, 100}}));
     connect(tRod.port, cyl.B) annotation(Line(points = {{110, 100}, {110, 140}}));
     connect(gB.port, tRod.port) annotation(Line(points = {{130, 100}, {110, 100}}));
-    annotation(Diagram(coordinateSystem(extent = {{-300, -305}, {230, 220}})),
+    annotation(Diagram(coordinateSystem(extent = {{-300, -305}, {230, 220}}), graphics = {
+      Rectangle(extent = {{200, 155}, {214, 185}}, lineColor = {120, 80, 40}, fillColor = {200, 160, 110}, fillPattern = FillPattern.Solid),
+      Text(extent = {{185, 200}, {230, 190}}, textString = "workpiece", textColor = {120, 80, 40})}),
       experiment(StartTime = 0, StopTime = 5, Tolerance = 1e-6, Interval = 0.001),
       Documentation(info = "<html><p>The start button 1S1 pilots 14 of the memory valve 1V1: the cylinder extends, its
 speed set by the one-way flow control 1V3 throttling the air into the cap side (meter-in). The

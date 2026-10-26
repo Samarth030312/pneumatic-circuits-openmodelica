@@ -4,8 +4,6 @@
 """
 import math
 import re
-import shutil
-import subprocess
 import sys
 from pathlib import Path
 
@@ -21,13 +19,9 @@ LESSONS = ["L01_DirectSingleActing", "L02_DirectDoubleActing", "L03_IndirectCont
            "L05_AndTwoHands", "L06_SpeedControl", "L07_QuickExhaust", "L08_MemoryValve"]
 
 
-def docker_ok():
-    if not shutil.which("docker"):
-        return False
-    return subprocess.run(["docker", "info"], capture_output=True).returncode == 0
+from pneusim import om  # noqa: E402
 
-
-needs_om = pytest.mark.skipif(not docker_ok(), reason="Docker (for the OpenModelica container) not available")
+needs_om = pytest.mark.skipif(not om.available(), reason="neither OpenModelica nor Docker is available")
 
 
 # ------------------------------------------------------------------ the flow law
@@ -90,12 +84,9 @@ def test_diagram_lines_end_on_ports(mdl):
 # ------------------------------------------------------------------ OpenModelica
 @needs_om
 def test_models_check_in_openmodelica():
-    mos = ROOT / "build" / "check_all.mos"
-    mos.parent.mkdir(exist_ok=True)
     names = [f"Experiments.{m}" for m in MODELS] + [f"Learn.Lessons.{m}" for m in LESSONS] + ["Learn.Sandbox"]
-    mos.write_text('loadFile("modelica/PneumaticCircuits/package.mo"); getErrorString();\n' +
-                   "".join(f"checkModel(PneumaticCircuits.{m}); getErrorString();\n" for m in names))
-    out = subprocess.run([str(ROOT / "scripts" / "om.sh"), "build/check_all.mos"], capture_output=True, text=True).stdout
+    out = om.script('loadFile("modelica/PneumaticCircuits/package.mo"); getErrorString();\n' +
+                    "".join(f"checkModel(PneumaticCircuits.{m}); getErrorString();\n" for m in names))
     assert out.count("completed successfully") == len(names), out
     assert "Error" not in out, out
 
@@ -103,9 +94,8 @@ def test_models_check_in_openmodelica():
 @needs_om
 def test_python_parameters_match_modelica():
     """the twin's parameters are the Modelica model's (read from the compiled model's init file)"""
-    from pneusim import om
     om.build("PressureStamp")
-    xml = next((ROOT / "build" / "PressureStamp").glob("*_init.xml")).read_text()
+    xml = next((om.BUILD / "PressureStamp").glob("*_init.xml")).read_text()
 
     def par(name):
         m = re.search(r'name = "' + re.escape(name) + r'"(?:(?!</ScalarVariable>).)*?start="([^"]+)"', xml, re.S)
@@ -138,7 +128,6 @@ def test_python_parameters_match_modelica():
 @needs_om
 @pytest.mark.parametrize("sid", ["E1-T0100", "E2-01", "E3-01"])
 def test_openmodelica_matches_python_twin(sid):
-    from pneusim import om
     sc = [s for s in scenarios.all_scenarios() if s.id == sid][0]
     om.build(sc.model)
     R = om.run(sc.model, sc.overrides(), f"test_{sid}", stop_time=sc.stop)

@@ -14,7 +14,7 @@ package Sources "Supply, exhaust and tube volumes"
       Ellipse(extent = {{-30, 30}, {30, -30}}, lineColor = {0, 0, 0}, fillColor = {255, 255, 255}, fillPattern = FillPattern.Solid),
       Polygon(points = {{0, 22}, {-10, 6}, {10, 6}, {0, 22}}, lineColor = {0, 0, 0}, fillColor = {0, 0, 0}, fillPattern = FillPattern.Solid),
       Line(points = {{0, 30}, {0, 40}}),
-      Text(extent = {{36, 10}, {120, -10}}, textString = "%tag  %name", horizontalAlignment = TextAlignment.Left)}),
+      Text(extent = {{34, 5}, {120, -5}}, textString = "%tag  %name", horizontalAlignment = TextAlignment.Left)}),
       Documentation(info = "<html><p>The service unit (filter, regulator) is the supply's only restriction; the
 regulator is taken as ideal (p_gauge held upstream of it).</p></html>"));
   end PressureSupply;

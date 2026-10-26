@@ -7,6 +7,8 @@
     python3 scripts/play.py PressureStamp p_set=2.5e5 x_work=0.06
     python3 scripts/play.py TwoHandPress cyl.m=5 cyl.F_c=30          # any parameter, by its Modelica name
     python3 scripts/play.py --list TwoHandPress                       # the settings a circuit offers
+    python3 scripts/play.py L06_SpeedControl openingA=0.05            # a lesson
+    python3 scripts/play.py TwoHandPress opening=0.1 --engine python  # no OpenModelica needed (experiments only)
 
 Arrays are written {a,b}: two presses of 1S1, {1,4} and {2,5}, need t_on1={1,4} t_off1={2,5} and the
 same number of entries in t_on2/t_off2. stop=<s> sets the run length. --save writes a PNG instead
@@ -20,15 +22,17 @@ import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "python"))
-from pneusim import om  # noqa: E402
+from pneusim import metrics, om, scenarios  # noqa: E402
 
 MODELS = ("TwoHandPress", "TwoHandPressNoQuickExhaust", "Reciprocating", "PressureStamp")
+LESSONS = ("L01_DirectSingleActing", "L02_DirectDoubleActing", "L03_IndirectControl", "L04_OrTwoPlaces",
+           "L05_AndTwoHands", "L06_SpeedControl", "L07_QuickExhaust", "L08_MemoryValve")
 P_ATM = 101325.0
 
 
 def top_parameters(model):
-    """the experiment's own parameters with their defaults and descriptions, from the source"""
-    src = (ROOT / "modelica" / "PneumaticCircuits" / "Experiments.mo").read_text()
+    """the circuit's own parameters with their defaults and descriptions, from the source"""
+    src = (ROOT / "modelica" / "PneumaticCircuits" / ("Learn.mo" if model in LESSONS else "Experiments.mo")).read_text()
     body = src[re.search(rf"model {model}\b", src).start():]
     body = body[:body.index(f"end {model};")]
     out = re.findall(r'parameter (?:Real|Boolean) (\w+)(?:\[[^\]]*\])?(?:\([^)]*\))? = ([^"]+?)\s*"([^"]*)"', body)
@@ -39,6 +43,11 @@ def top_parameters(model):
 
 def main(argv):
     save = "--save" in argv
+    eng = "openmodelica"
+    if "--engine" in argv:
+        i = argv.index("--engine")
+        eng = argv[i + 1]
+        argv = argv[:i] + argv[i + 2:]
     argv = [a for a in argv if a != "--save"]
     if not argv or argv[0] in ("-h", "--help"):
         print(__doc__)
@@ -48,8 +57,9 @@ def main(argv):
             print(f"  {k:12s} = {v:10s} {d}")
         return
     model = argv[0]
-    if model not in MODELS:
-        sys.exit(f"model must be one of {', '.join(MODELS)}")
+    if model not in MODELS + LESSONS:
+        sys.exit(f"model must be one of {', '.join(MODELS + LESSONS)}")
+    om.PKG = "PneumaticCircuits.Learn.Lessons." if model in LESSONS else "PneumaticCircuits.Experiments."
     ov, stop = {}, None
     for a in argv[1:]:
         k, v = a.split("=", 1)
@@ -60,12 +70,40 @@ def main(argv):
                 ov[f"{k}[{i + 1}]"] = e.strip()
         else:
             ov[k] = v
-    if not (ROOT / "build" / model / f"PneumaticCircuits.Experiments.{model}").exists():
-        print(f"building {model} ...")
-        om.build(model)
-    print("running", model, ov or "(defaults)")
-    R = om.run(model, ov, f"play_{model}", stop_time=stop)
+    if eng == "python":
+        R = run_python(model, ov, stop)
+    else:
+        if not any((ROOT / "build" / model).glob(f"{om.PKG}{model}*")):
+            print(f"building {model} with OpenModelica ({om.engine()}) ...")
+            om.build(model)
+        print("running", model, ov or "(defaults)")
+        R = om.run(model, ov, f"play_{model}", stop_time=stop)
     plot(model, R, ov, save)
+
+
+def run_python(model, ov, stop):
+    """the same experiment on the Python twin (python/pneusim/model.py): no OpenModelica needed"""
+    if model not in MODELS:
+        sys.exit("--engine python runs the experiments only: " + ", ".join(MODELS))
+    p = {}
+    for k, v in ov.items():
+        base = k.split("[")[0]
+        if "." in base:
+            sys.exit(f"--engine python takes the circuit's own settings only (see --list), not {k}")
+        val = {"true": True, "false": False}.get(v.lower(), None)
+        val = float(v) if val is None else val
+        if "[" in k:
+            p.setdefault(base, [None]).__setitem__(0, val)
+        else:
+            p[base] = val
+    defaults = {"TwoHandPress": 8, "TwoHandPressNoQuickExhaust": 8, "Reciprocating": 10, "PressureStamp": 5}
+    sc = scenarios.Scenario("play", model, "", stop or defaults[model], p)
+    print("running", model, "on the Python twin", p or "(defaults)")
+    R = sc.twin().simulate(sc.stop, dt_out=0.002)
+    nets = {"TwoHandPress": ("t5", "t7"), "TwoHandPressNoQuickExhaust": ("t5", "t6"),
+            "Reciprocating": ("tCap", "tRod"), "PressureStamp": ("tCap", "tRod")}[model]
+    R["g1.p_bar"], R["g2.p_bar"] = metrics.bar(R[nets[0]]), metrics.bar(R[nets[1]])
+    return R
 
 
 def plot(model, R, ov, save):
