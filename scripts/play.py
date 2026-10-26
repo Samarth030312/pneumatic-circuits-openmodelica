@@ -72,6 +72,11 @@ def plot(model, R, ov, save):
     import matplotlib
     if save:
         matplotlib.use("Agg")
+    else:
+        try:
+            matplotlib.use("TkAgg")          # an interactive window (zoom, pan) even where the default is not
+        except Exception:
+            pass
     import matplotlib.pyplot as plt
     t = R["time"]
     gauges = [(k, k.split(".")[0]) for k in R if k.endswith(".p_bar")]
