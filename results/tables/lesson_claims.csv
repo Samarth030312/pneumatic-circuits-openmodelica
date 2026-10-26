@@ -1,0 +1,21 @@
+lesson,claim,measured,result
+L01,the spring return is slower than the extension,"extend 0.0272 s, return 0.14 s",PASS
+L01,"at 1 bar it still reaches the end, much more slowly: 1 bar x A = 31.4 N, just above spring 25 N + friction 6 N","x max 50.0 mm, extend 0.266 s vs 0.0272 s",PASS
+L01,a stiffer spring returns faster,return 0.106 s vs 0.14 s,PASS
+L01,released after 15 ms the piston stops part-way and comes back,x max 33.43 mm,PASS
+L02,a 5 kg tool overshoots into the end stop (rebounds),x max 100.63 mm,PASS
+L02,a small valve (30 l/min) slows both strokes,"extend 0.252 vs 0.087 s, return 0.302 vs 0.0987 s",PASS
+L03,indirect control starts later than direct control (pilot filling),1.028 s vs 1.02 s,PASS
+L03,a 10 m pilot line starts the cylinder later,1.054 s vs 1.028 s,PASS
+L03,pilot needing 4 bar on a 3 bar supply: nothing moves,x max 0.0 mm,PASS
+L04,either station extends the cylinder (two strokes),2 strokes,PASS
+L04,"overlapping presses give one longer stroke, nothing new",1 strokes,PASS
+L05,the cylinder starts only when the second hand arrives (1.5 s),starts 1.53 s,PASS
+L05,hands that never overlap: no motion,x max 0.0 mm,PASS
+L06,a quarter of the opening (20 % to 5 %): the return takes about four times longer,"return 1.836 s vs 0.466 s, ratio 3.94",PASS
+L06,meter-in is faster at the same settings,extend 0.1599 s vs 0.364 s,PASS
+L06,a 60 N load slows meter-in far more than meter-out,extend time x1.59 (meter-in) vs x1.13 (meter-out),PASS
+L07,the quick-exhaust valve shortens the extension (vs L03),0.0616 s vs 0.0871 s,PASS
+L08,a tap on start keeps it extended after the release; a tap on return brings it back,back at 3.046 s,PASS
+L08,overlapping signals: still extended at the end,x end 100.02 mm,PASS
+L08,return held until 7.5 s: it returns when start is released at 7 s,x at 7.4 s -0.0 mm,PASS

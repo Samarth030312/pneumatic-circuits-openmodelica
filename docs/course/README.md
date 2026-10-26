@@ -4,6 +4,10 @@ The experiment's edge-folding device is experiment **E1**, `PneumaticCircuits.Ex
 built as in the guideline's circuit diagram. This page says where each task can be done in
 simulation; it gives no answers to the report questions.
 
+**Before the lab:** install OpenModelica ([install](../INSTALL.md)) and work through lessons L01 to L05
+([learn](../LEARN.md)): they build the edge-folding circuit up from one cylinder, one idea at a time.
+Then open `Experiments.TwoHandPress`, simulate it, and watch it in the Diagram Window.
+
 | Guideline task | In this repository |
 |---|---|
 | 1. Understand the device and the circuit | [circuit diagram](../img/circuit_two_hand_press.png), [how it works](../EXPERIMENTS.md#e1-two-hand-press), [components](../COMPONENTS.md) |

@@ -146,6 +146,7 @@ def plot(model, R, ov, save):
     fig.tight_layout()
     if save:
         out = ROOT / "build" / f"play_{model}.png"
+        out.parent.mkdir(parents=True, exist_ok=True)
         fig.savefig(out, dpi=120)
         print("->", out)
     else:

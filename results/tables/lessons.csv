@@ -1,0 +1,23 @@
+run,lesson,settings,x_max_mm,strokes,x_end_mm,out_start_s,out_end_s,back_start_s,home_s,extend_s,return_s
+L01,L01_DirectSingleActing,defaults,50.02,1,-0.0,1.008,1.0352,3.104,3.244,0.0272,0.14
+L01-1bar,L01_DirectSingleActing,sup.p_gauge=100000.0,50.0,1,-0.0,1.016,1.282,3.034,3.174,0.266,0.14
+L01-stiff,L01_DirectSingleActing,cyl.k_spring=3000,50.0,1,-0.0,1.008,1.08,3.024,3.13,0.072,0.106
+L01-short,L01_DirectSingleActing,hand.t_off[1]=1.015,33.43,1,-0.0,1.008,1.032,1.05,1.154,0.024,0.104
+L02,L02_DirectDoubleActing,defaults,100.02,1,-0.02,1.02,1.107,3.038,3.1367,0.087,0.0987
+L02-heavy,L02_DirectDoubleActing,cyl.m=5,100.63,2,-0.02,1.028,1.1384,1.144,3.17,0.1104,2.026
+L02-small,L02_DirectDoubleActing,v1.qn=30,100.02,1,-0.02,1.038,1.29,3.08,3.382,0.252,0.302
+L03,L03_IndirectControl,defaults,100.02,1,-0.02,1.028,1.1151,3.064,3.1635,0.0871,0.0995
+L03-10m,L03_IndirectControl,tP.L=10,100.02,1,-0.02,1.054,1.1411,3.21,3.309,0.0871,0.099
+L03-stiff,L03_IndirectControl,v1.p_on=400000.0 sup.p_gauge=300000.0,0.0,0,-0.01,,,,,,
+L04,L04_OrTwoPlaces,defaults,100.02,2,-0.02,1.03,1.116,2.066,2.1655,0.086,0.0995
+L04-overlap,L04_OrTwoPlaces,hand2.t_on[1]=1.5,100.02,1,-0.02,1.03,1.116,4.066,4.1655,0.086,0.0995
+L05,L05_AndTwoHands,defaults,100.02,1,-0.02,1.53,1.616,3.066,3.1655,0.086,0.0995
+L05-apart,L05_AndTwoHands,hand2.t_on[1]=3.5,0.0,0,-0.02,,,,,,
+L06,L06_SpeedControl,defaults,100.02,1,-0.02,1.032,1.396,3.144,3.61,0.364,0.466
+L06-5pc,L06_SpeedControl,openingA=0.05,100.02,1,-0.02,1.032,1.396,3.43,5.266,0.364,1.836
+L06-in,L06_SpeedControl,meterIn=true,100.04,1,-0.02,1.046,1.2059,3.08,3.2529,0.1599,0.1729
+L06-in-60N,L06_SpeedControl,meterIn=true cyl.F_load=60,100.01,1,-0.02,1.06,1.314,3.066,3.2049,0.254,0.1389
+L06-out-60N,L06_SpeedControl,cyl.F_load=60,100.01,1,-0.02,1.118,1.528,3.054,3.484,0.41,0.43
+L07,L07_QuickExhaust,defaults,100.03,1,-0.02,1.026,1.0876,3.064,3.164,0.0616,0.1
+L08,L08_MemoryValve,defaults,100.02,2,100.02,1.028,1.1151,3.046,3.1446,0.0871,0.0986
+L08-longer,L08_MemoryValve,handReturn.t_off[2]=7.5,100.02,2,-0.02,1.028,1.1151,3.046,3.1446,0.0871,0.0986

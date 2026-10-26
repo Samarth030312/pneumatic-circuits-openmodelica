@@ -11,6 +11,10 @@
   AND and OR valves; `tag` labels with circuit designations.
 - `scripts/play.py`: run any circuit with your settings and plot it.
 - Trademark and independence notice.
+- Windows (native OpenModelica) and macOS (Docker with XQuartz, or the Python engine) supported and
+  tested in CI; `docs/INSTALL.md`.
+- `scripts/run_lessons.py`: every lesson and variant recorded (`results/data/lessons`), and the 20
+  statements the lessons make checked against simulation (all pass).
 
 ## 1.0.0 (2026-10-26)
 

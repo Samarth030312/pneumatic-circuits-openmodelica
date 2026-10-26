@@ -40,9 +40,12 @@ chamber fills blue, the gauge needle rises, the piston moves.</p>
 stays where force balances the spring, then it climbs to the supply pressure at the end stop.</li>
 <li>Returning, only the spring pushes: it is slower than extending.</li></ul>
 <h3>Try this</h3>
-<ul><li>Set <code>sup.p_gauge</code> to 1e5 (1 bar): does the piston still reach the end? Compare (p - 1 atm) A with the spring force.</li>
-<li>Set <code>cyl.k_spring</code> to 3000: the return gets faster; the end force drops.</li>
-<li>Release earlier: <code>hand.t_off = {1.05}</code>. The piston stops part-way and comes back.</li></ul>
+<ul><li>Set <code>sup.p_gauge</code> to 1e5 (1 bar): does the piston still reach the end? Compare the air force
+(p - p_atm) A = 1 bar x 3.14 cm² = 31.4 N with the spring (10 N + 300 N/m x 0.05 m = 25 N at the end) plus friction (6 N).
+(It does, slowly: 31.4 N is just enough.)</li>
+<li>Set <code>cyl.k_spring</code> to 3000: the return gets faster; the force left at the end of the stroke drops.</li>
+<li>Release almost at once: <code>hand.t_off = {1.015}</code>. The extension takes only about 27 ms; released after 15 ms,
+the piston stops part-way (about 33 mm) and comes back.</li></ul>
 </html>"));
     end L01_DirectSingleActing;
 

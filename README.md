@@ -8,7 +8,33 @@ dragged, dropped, connected and run in OMEdit, OpenModelica's graphical editor, 
 after a simulation: pistons move, chambers and lines fill with pressure, valves show their active
 position, gauges read live ([learn](docs/LEARN.md)).
 
-![two-hand press: circuit and simulated strokes](docs/img/circuit_two_hand_press.png)
+## Start in five minutes
+
+1. **Get it:** green **Code** button above → **Download ZIP**, unzip.
+2. **Install OpenModelica** (free): Windows installer from <https://openmodelica.org>; macOS and Linux
+   via Docker. Step by step: **[install](docs/INSTALL.md)**.
+3. **Open** `modelica/PneumaticCircuits/package.mo` in OMEdit → `Learn → Lessons → L01`, press
+   **Simulate**, then **Diagram Window** and **Play**: the circuit runs.
+
+Then follow the eight lessons and three exercises: **[learn](docs/LEARN.md)**.
+
+| A lesson running in OMEdit (speed control, returning) | An experiment (pressure-dependent stamping, on the workpiece) |
+|---|---|
+| ![L06 in OMEdit](docs/img/omedit_animation_L06.png) | ![stamping in OMEdit](docs/img/omedit_animation_stamp.png) |
+
+Blue is compressed air: chambers and lines fill with it, a valve's blue square is its active
+position, pistons move with the simulated position, gauges read the simulated pressure.
+
+## What is in it
+
+| | |
+|---|---|
+| **Library** | supply, tubes, 3/2 push-button, selector and roller valves, 5/2 selector, single- and double-pilot valves, AND and OR valves, one-way flow control, quick exhaust, pressure sequence valve, single- and double-acting cylinders, gauges |
+| **Learn** | 8 lessons (direct and indirect control, OR, AND, speed control, quick exhaust, memory), 3 exercises with the parts placed but not connected, a sandbox |
+| **Experiments** | the three below, 48 recorded runs |
+| **Proof** | an independent Python implementation reproduces every run; 20 statements of the lessons checked against simulation; tests on Linux, Windows and macOS |
+
+![two-hand press circuit](docs/img/circuit_two_hand_press.png)
 
 | Experiment | Circuit | What it shows |
 |---|---|---|
@@ -34,31 +60,28 @@ position, gauges read live ([learn](docs/LEARN.md)).
 All are simulations; parameters without a datasheet are estimated, and their effect is
 quantified ([sensitivity](docs/EXPERIMENTS.md#sensitivity)).
 
-## Run it
+## Command line (optional)
 
-Requirements: Docker (OpenModelica runs from its official images; nothing else is installed),
-Python 3.10+ with NumPy, SciPy and Matplotlib.
+Python 3.10+ (`pip install -r requirements.txt`). The scripts use an installed OpenModelica, or
+its Docker image if none is installed; `--engine python` needs neither.
 
 ```bash
-docker pull openmodelica/openmodelica:v1.27.1-minimal   # compiler and simulator
-docker pull openmodelica/openmodelica:v1.27.1-gui       # for OMEdit (optional)
-
-scripts/omedit.sh                     # OMEdit with the library: Experiments > double-click > Simulate
+scripts/omedit.sh                     # Linux/macOS: OMEdit from the Docker image
 python3 scripts/play.py TwoHandPress opening=0.1   # one run with your settings, plotted (--list shows them)
+python3 scripts/run_lessons.py        # every lesson and variant, recorded; the lessons' statements checked
 python3 scripts/run_experiments.py    # all 48 runs, OpenModelica and the Python twin (about 5 min)
 python3 scripts/make_figures.py       # figures and circuit diagrams -> docs/img
 python3 scripts/sensitivity.py        # parameter sensitivity -> results/tables/sensitivity.csv
 python3 -m pytest tests               # tests (CI runs them on every push)
 ```
 
-On Windows or macOS: install [OpenModelica](https://openmodelica.org/download/) and open
-`modelica/PneumaticCircuits/package.mo` in OMEdit.
 
 ## Documentation
 
 | | |
 |---|---|
-| [Learn](docs/LEARN.md) | watch circuits run, the eight lessons, exercises and the sandbox |
+| [Install](docs/INSTALL.md) | Windows, macOS, Linux, step by step; troubleshooting |
+| [Learn](docs/LEARN.md) | watch circuits run, the eight lessons with their recorded results, exercises, the sandbox |
 | [Software](docs/SOFTWARE.md) | the free and commercial tools compared, and why OpenModelica |
 | [Physics](docs/PHYSICS.md) | every equation, and the results they predict in closed form |
 | [Components](docs/COMPONENTS.md) | the kit's parts, every parameter with its source and status |
@@ -70,8 +93,8 @@ On Windows or macOS: install [OpenModelica](https://openmodelica.org/download/) 
 ```
 modelica/PneumaticCircuits/   the Modelica library: components (Valves, Actuators, Sources, ...), Learn (lessons, exercises, sandbox), Experiments
 python/pneusim/               the Python twin (model.py, circuits.py), scenarios, metrics, diagram drawing, OpenModelica runner
-scripts/                      run_experiments, make_figures, sensitivity, om.sh (compiler), omedit.sh (editor)
-results/                      data/ (every run, 5 ms), tables/ (measured quantities, cross-check, sensitivity), RUN_INFO.json
+scripts/                      play, run_lessons, run_experiments, make_figures, sensitivity, om.sh, omedit.sh
+results/                      data/ (every run, 5 ms; lessons/), tables/ (lessons, claims, experiments, cross-check, sensitivity), RUN_INFO.json
 docs/                         documentation and figures
 tests/                        pytest suite
 ```
